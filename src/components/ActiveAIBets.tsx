@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { aiModels } from "@/data/mockData";
 import { TrendingUp, ArrowRight, Shield, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, type CSSProperties } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, startTransition, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { teamsZh } from "@/i18n/teams-zh";
@@ -748,7 +748,6 @@ const ActiveAIBets = () => {
     };
 
     const fetchData = async (isRefresh = false) => {
-      // 已登录、试用已过、无会员：不请求数据
       if (!canViewAnalysisRef.current) {
         if (!isRefresh) setIsInitialLoading(false);
         return;
@@ -759,7 +758,6 @@ const ActiveAIBets = () => {
         } else {
           setIsInitialLoading(true);
         }
-        
         // 获取 UTC+8 时区的日期字符串（与数据库存储一致）
         const getUTC8DateString = (date: Date): string => {
           const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -789,7 +787,7 @@ const ActiveAIBets = () => {
           .in('date', [yesterdayStr, today])
           .or('ended.is.null,ended.eq.0') // ended 为 null 或 0 表示未结束（ended 是秒级时间戳）
           .order('match_time', { ascending: true }); // 使用 match_time 字段排序（秒级时间戳）
-        
+
         // Filter out completed matches on client side (using ended field and status_id)
         // 比赛结束逻辑：根据 ended 字段和 status_id 判断
         // ended 是秒级时间戳，> 0 表示已结束；status_id = 8 表示完场
@@ -830,114 +828,81 @@ const ActiveAIBets = () => {
             });
           }
         } else {
-          // 获取实时比赛数据（match_live_data 表）
           const matchIds = (activeMatches || []).map((m: any) => m.match_id).filter((id: any) => id != null);
+          const yesterdayStartISO = new Date(`${yesterdayStr}T00:00:00+08:00`).toISOString();
+
+          // 并行请求：live_data、auto_bets、ai_balances 同时发，减少总等待时间
+          const [liveDataRes, betsRes, balancesRes] = await Promise.all([
+            matchIds.length > 0
+              ? supabase.from('match_live_data' as any).select('*').in('match_id', matchIds)
+              : Promise.resolve({ data: null, error: null }),
+            supabase
+              .from('ai_auto_bets' as any)
+              .select('*')
+              .in('status', ['pending', 'confirmed', 'open'])
+              .gte('inserted_at', yesterdayStartISO)
+              .order('inserted_at', { ascending: false }),
+            supabase.from('ai_balances' as any).select('*'),
+          ]);
+
           let liveDataMap: Record<number, any> = {};
-          
-          if (matchIds.length > 0) {
-            try {
-              const { data: liveDataArray, error: liveDataError } = await supabase
-                .from('match_live_data' as any)
-                .select('*')
-                .in('match_id', matchIds);
-              
-              if (liveDataError) {
-                console.warn('Error fetching live data:', liveDataError);
-              } else if (liveDataArray) {
-                // 构建 match_id -> liveData 的映射
-                liveDataArray.forEach((liveData: any) => {
-                  if (liveData.match_id) {
-                    liveDataMap[liveData.match_id] = liveData;
-                  }
-                });
-              }
-            } catch (error) {
-              console.warn('Error fetching live data:', error);
-            }
+          if (liveDataRes.data) {
+            (liveDataRes.data as any[]).forEach((liveData: any) => {
+              if (liveData.match_id) liveDataMap[liveData.match_id] = liveData;
+            });
           }
-          
-          // 合并实时数据到比赛数据中
           const matchesList = (activeMatches || []).map((match: any) => {
             const liveData = match.match_id ? liveDataMap[match.match_id] : undefined;
             return normalizeDailyMatch(match, liveData);
           }) as DailyMatch[];
-          
           setMatches(matchesList);
-        }
 
-        // Fetch auto bets (pending and confirmed status for active predictions)
-        // 包含昨天和今天的投注（因为要显示昨天和今天的比赛）
-        // 显示 pending、confirmed 和 open 状态的投注（已确定但比赛未完成的投注）
-        // 注意：ai_auto_bets 表使用 inserted_at 字段（不是 created_at）
-        // 使用 yesterday 00:00 UTC+8 作为下限，确保凌晨（UTC+8）插入的投注被包含
-        const yesterdayStartISO = new Date(`${yesterdayStr}T00:00:00+08:00`).toISOString();
-        const { data: betsData, error: betsError } = await supabase
-          .from('ai_auto_bets' as any)
-          .select('*')
-          .in('status', ['pending', 'confirmed', 'open'])
-          .gte('inserted_at', yesterdayStartISO)
-          .order('inserted_at', { ascending: false });
-
-        if (betsError) {
-          console.error('Error fetching auto bets:', betsError);
-        } else {
-          setAutoBets((betsData || []) as unknown as AutoBet[]);
-          
-          // 获取所有投注的分析记录，提取输赢预测
-          const betsWithAnalysis = (betsData || []) as unknown as AutoBet[];
-          const analysisIds = betsWithAnalysis
-            .filter(b => b.analysis_reference_ids && b.analysis_reference_ids.length > 0)
-            .flatMap(b => b.analysis_reference_ids || []);
-
-          if (analysisIds.length > 0) {
-            const { data: analysesData } = await supabase
-              .from('ai_match_analyses' as any)
-              .select('id, match_id, ai_id, bet_snapshot')
-              .in('id', analysisIds);
-            
-            if (analysesData) {
-              const predictionsMap: Record<string, { prediction: string; confidence: number; odds: number }> = {};
-              const marketOddsMapNew: Record<string, MarketOdds> = {};
-              
-              analysesData.forEach((analysis: any) => {
-                const key = `${analysis.match_id}_${analysis.ai_id}`;
-                
-                // Extract moneyline prediction
-                if (analysis.bet_snapshot && analysis.bet_snapshot.moneyline) {
-                  predictionsMap[key] = {
-                    prediction: analysis.bet_snapshot.moneyline.prediction,
-                    confidence: analysis.bet_snapshot.moneyline.confidence || 0,
-                    odds: analysis.bet_snapshot.moneyline.odds || 1.9,
-                  };
-                }
-                
-                // Extract allMarketOdds for handicap and over/under
-                if (analysis.bet_snapshot && analysis.bet_snapshot.allMarketOdds) {
-                  marketOddsMapNew[key] = analysis.bet_snapshot.allMarketOdds;
-                }
-              });
-              
-              setMoneylinePredictions(predictionsMap);
-              setMarketOddsMap(marketOddsMapNew);
+          const betsData = betsRes.data;
+          const betsError = betsRes.error;
+          if (betsError) {
+            console.error('Error fetching auto bets:', betsError);
+          } else {
+            setAutoBets((betsData || []) as unknown as AutoBet[]);
+            const betsWithAnalysis = (betsData || []) as unknown as AutoBet[];
+            const analysisIdsRaw = betsWithAnalysis
+              .filter(b => b.analysis_reference_ids && b.analysis_reference_ids.length > 0)
+              .flatMap(b => b.analysis_reference_ids || []);
+            const analysisIds = [...new Set(analysisIdsRaw)].slice(0, 200); // 去重并限制数量，避免 IN 过长导致 8s+ 慢查询
+            if (analysisIds.length > 0) {
+              const { data: analysesData } = await supabase
+                .from('ai_match_analyses' as any)
+                .select('id, match_id, ai_id, bet_snapshot')
+                .in('id', analysisIds);
+              if (analysesData) {
+                const predictionsMap: Record<string, { prediction: string; confidence: number; odds: number }> = {};
+                const marketOddsMapNew: Record<string, MarketOdds> = {};
+                (analysesData as any[]).forEach((analysis: any) => {
+                  const key = `${analysis.match_id}_${analysis.ai_id}`;
+                  if (analysis.bet_snapshot?.moneyline) {
+                    predictionsMap[key] = {
+                      prediction: analysis.bet_snapshot.moneyline.prediction,
+                      confidence: analysis.bet_snapshot.moneyline.confidence || 0,
+                      odds: analysis.bet_snapshot.moneyline.odds || 1.9,
+                    };
+                  }
+                  if (analysis.bet_snapshot?.allMarketOdds) marketOddsMapNew[key] = analysis.bet_snapshot.allMarketOdds;
+                });
+                setMoneylinePredictions(predictionsMap);
+                setMarketOddsMap(marketOddsMapNew);
+              }
             }
           }
-        }
 
-        // Fetch AI balances
-        const { data: balancesData, error: balancesError } = await supabase
-          .from('ai_balances' as any)
-          .select('*');
-
-        if (balancesError) {
-          console.error('Error fetching balances:', balancesError);
-        } else {
-          const balancesMap: Record<string, AIBalance> = {};
-          ((balancesData || []) as unknown as AIBalance[]).forEach((balance) => {
-            if (balance.ai_id) {
-              balancesMap[balance.ai_id] = balance;
-            }
-          });
-          setAiBalances(balancesMap);
+          const balancesError = balancesRes.error;
+          if (balancesError) {
+            console.error('Error fetching balances:', balancesError);
+          } else {
+            const balancesMap: Record<string, AIBalance> = {};
+            ((balancesRes.data || []) as unknown as AIBalance[]).forEach((balance) => {
+              if (balance.ai_id) balancesMap[balance.ai_id] = balance;
+            });
+            setAiBalances(balancesMap);
+          }
         }
       } catch (error) {
         console.error('Unexpected error:', error);
@@ -1875,24 +1840,27 @@ const ActiveAIBets = () => {
             balanceNumber,
             gradient,
           } = perAIDataMap[aiModel.id];
-          // Handler to switch to next match
+          // 整次切换都放进 startTransition，避免点下去就同步重渲染整棵树导致卡顿
           const nextMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
-            setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'right' }));
-            setCurrentMatchIndex(prev => ({
-              ...prev,
-              [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % matchEntries.length
-            }));
+            startTransition(() => {
+              setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'right' }));
+              setCurrentMatchIndex(prev => ({
+                ...prev,
+                [aiModel.id]: ((prev[aiModel.id] || 0) + 1) % matchEntries.length
+              }));
+            });
           };
 
-          // Handler to switch to previous match
           const prevMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
-            setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'left' }));
-            setCurrentMatchIndex(prev => ({
-              ...prev,
-              [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + matchEntries.length) % matchEntries.length
-            }));
+            startTransition(() => {
+              setSlideDirection(prev => ({ ...prev, [aiModel.id]: 'left' }));
+              setCurrentMatchIndex(prev => ({
+                ...prev,
+                [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + matchEntries.length) % matchEntries.length
+              }));
+            });
           };
 
           return (
@@ -1980,7 +1948,7 @@ const ActiveAIBets = () => {
                       x: slideDirection[aiModel.id] === 'right' ? -80 : 80 
                     }}
                     transition={{ 
-                      duration: 0.25, 
+                      duration: 0.18, 
                       ease: "easeOut" 
                     }}
                     className="space-y-1.5 sm:space-y-4"

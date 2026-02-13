@@ -164,13 +164,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 仅对当前 userId 拉取一次 profile/balance/vip，避免 onAuthStateChange 与 getSession 重复请求导致加载变慢
+  // 仅对当前 userId 拉取一次 profile/balance/vip；并行请求，全部返回后一次性更新，减少多次 setState 导致的卡顿
   const loadUserDataOnce = (userId: string) => {
     if (fetchedUserIdRef.current === userId) return;
     fetchedUserIdRef.current = userId;
-    fetchUserProfile(userId);
-    fetchUserBalance(userId);
-    fetchUserVip(userId);
+    (async () => {
+      const [profileRes, balanceRes, vipRes] = await Promise.all([
+        supabase.from('users').select('display_name, avatar_url').eq('id', userId).maybeSingle(),
+        supabase.from('user_balances').select('balance, total_wagered, total_won, total_lost').eq('user_id', userId).maybeSingle(),
+        supabase.from('user_vip').select('is_active, expires_at').eq('user_id', userId).maybeSingle(),
+      ]);
+      if (fetchedUserIdRef.current !== userId) return;
+      if (profileRes.error && profileRes.error.code !== 'PGRST116') console.error('Error fetching user profile:', profileRes.error);
+      if (profileRes.data) {
+        setUserProfile(profileRes.data);
+      } else {
+        fetchedUserIdRef.current = null;
+        setUserProfile(null);
+        setUserBalance(null);
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        return;
+      }
+      if (balanceRes.error && balanceRes.error.code !== 'PGRST116') console.error('Error fetching user balance:', balanceRes.error);
+      setUserBalance(balanceRes.data ?? { balance: 100000, total_wagered: 0, total_won: 0, total_lost: 0 });
+      if (vipRes.error && vipRes.error.code !== 'PGRST116') console.error('Error fetching user VIP:', vipRes.error);
+      if (vipRes.data?.expires_at) {
+        const expiresAt = vipRes.data.expires_at as string;
+        setUserVip({ isActive: vipRes.data.is_active === true && new Date(expiresAt) > new Date(), expiresAt });
+      } else {
+        setUserVip({ isActive: false, expiresAt: null });
+      }
+    })();
   };
 
   useEffect(() => {
