@@ -738,6 +738,16 @@ const ActiveAIBets = () => {
   }, [isAutoPrediction, measureAndLockCardHeight]);
   // Fetch real data from database (only on mount and periodic refresh, not on language change)
   useEffect(() => {
+    const REFRESH_THROTTLE_MS = 1200;
+    let lastRefreshAt = 0;
+    const throttledRefresh = () => {
+      const now = Date.now();
+      if (now - lastRefreshAt >= REFRESH_THROTTLE_MS) {
+        lastRefreshAt = now;
+        fetchData(true);
+      }
+    };
+
     const fetchData = async (isRefresh = false) => {
       // 已登录、试用已过、无会员：不请求数据
       if (!canViewAnalysisRef.current) {
@@ -967,10 +977,10 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'daily_matches',
         },
-        () => fetchData(true)
+        throttledRefresh
       )
       .subscribe();
-    
+
     // 订阅 match_live_data 表的变化，实时更新比赛比分、状态等
     const liveDataChannel = supabase
       .channel('match-live-data-updates')
@@ -981,7 +991,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'match_live_data',
         },
-        () => fetchData(true)
+        throttledRefresh
       )
       .on(
         'postgres_changes',
@@ -990,11 +1000,11 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'match_live_data',
         },
-        () => fetchData(true)
+        throttledRefresh
       )
       .subscribe();
 
-    // 订阅 ai_auto_bets 表的变化，实时显示新投注和状态变化
+    // 订阅 ai_auto_bets 表的变化，实时显示新投注和状态变化（节流减少卡顿）
     const autoBetsChannel = supabase
       .channel('auto-bets-updates')
       .on(
@@ -1004,7 +1014,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'ai_auto_bets',
         },
-        () => fetchData(true)
+        throttledRefresh
       )
       .on(
         'postgres_changes',
@@ -1013,7 +1023,7 @@ const ActiveAIBets = () => {
           schema: 'public',
           table: 'ai_auto_bets',
         },
-        () => fetchData(true)
+        throttledRefresh
       )
       .subscribe();
 
@@ -1421,18 +1431,18 @@ const ActiveAIBets = () => {
     return t(`leagues.${key}`, key);
   };
 
-  // Convert database match to component format（同时规范球队/联赛名为英文 key）
-  const convertMatch = (match: DailyMatch) => {
+  // Convert database match to component format（稳定引用，供 useMemo 依赖）
+  const convertMatch = useCallback((match: DailyMatch) => {
     const isLive = match.status_short === 'LIVE';
     const kickoff = getKickoffDate(match);
     return {
       id: `match_${match.mid}`,
       mid: match.mid,
       date: match.date,
-      time: kickoff ? kickoff.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
+      time: kickoff ? kickoff.toLocaleTimeString('en-US', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: false 
+        hour12: false
       }) : '--:--',
       league: toLeagueEnglishKey(match.league_name || ''),
       homeTeam: toTeamEnglishKey(match.home_team_name || ''),
@@ -1442,12 +1452,12 @@ const ActiveAIBets = () => {
       status: isLive ? 'live' : 'upcoming',
       homeLogo: match.home_logo || undefined,
       awayLogo: match.away_logo || undefined,
-      currentMinute: isLive ? 45 : undefined, // TODO: Get actual minute from API
+      currentMinute: isLive ? 45 : undefined,
     };
-  };
+  }, []);
 
-  // Convert database bet to component format
-  const convertBet = (bet: AutoBet, match: DailyMatch) => {
+  // Convert database bet to component format（稳定引用）
+  const convertBet = useCallback((bet: AutoBet, match: DailyMatch) => {
     const matchData = convertMatch(match);
     return {
       match: matchData,
@@ -1462,7 +1472,7 @@ const ActiveAIBets = () => {
       overUnderPick: bet.over_under_pick ?? undefined,
       confirmed: bet.status === 'confirmed' || bet.status === 'pending' || bet.status === 'open',
     };
-  };
+  }, [convertMatch]);
 
   const getBetTypeText = (betType: string, prediction: string, handicapLine?: number, overUnderLine?: number, overUnderPick?: string) => {
     switch(betType) {
@@ -1660,6 +1670,160 @@ const ActiveAIBets = () => {
     if (hasInvalid) setCurrentMatchIndex(prev => ({ ...prev, ...updates }));
   }, [allMatchesWithBets, autoBets, activeAIs]);
 
+  // 预计算每张 AI 卡片数据，避免在每次渲染中重复做 filter/sort/marketOdds 等重计算
+  type BetItem = ReturnType<typeof convertBet>;
+  type MatchEntryItem = { match: DailyMatch; bets: BetItem[] };
+  const TOP5_LEAGUES = [
+    '英格兰冠军联赛', '英格兰超级联赛', '澳大利亚超级联赛', '德国甲级联赛', '西班牙甲级联赛',
+    '意大利甲级联赛', '法国甲级联赛', '荷兰甲级联赛', '葡萄牙超级联赛', '西班牙乙级联赛',
+    '意大利乙级联赛', '土耳其超级联赛', '德国乙级联赛',
+  ];
+  const getLeaguePriorityForSort = (leagueName: string | null | undefined): number => {
+    if (!leagueName) return 999;
+    const index = TOP5_LEAGUES.indexOf(leagueName);
+    return index === -1 ? 100 : index;
+  };
+
+  const perAIDataMap = useMemo(() => {
+    const now = getUTC8TimestampMs();
+    const map: Record<string, {
+      matchEntries: MatchEntryItem[];
+      matchIndex: number;
+      validMatchIndex: number;
+      currentMatchData: MatchEntryItem | null;
+      moneylineBet: BetItem | null;
+      handicapBet: BetItem | null;
+      overUnderBet: BetItem | null;
+      bet: BetItem | null;
+      balanceNumber: string;
+      gradient: { from: string; to: string; accent: string; glow: string };
+    }> = {};
+
+    activeAIs.forEach((aiModel) => {
+      const betsByMatch = new Map<string, MatchEntryItem>();
+      allMatchesWithBets.forEach((match) => {
+        const matchBets = autoBets
+          .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
+          .map(bet => convertBet(bet, match));
+        if (matchBets.length > 0) betsByMatch.set(match.mid, { match, bets: matchBets });
+      });
+
+      const matchEntries = Array.from(betsByMatch.values())
+        .filter((entry) => {
+          const match = entry.match;
+          const ended = match.ended;
+          const endedValue = ended !== null && ended !== undefined ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended)) : 0;
+          const statusId = match.status_id !== null && match.status_id !== undefined ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id)) : null;
+          if (!isNaN(endedValue) && endedValue > 0) return false;
+          if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const aKickoff = a.match.mgt && a.match.mgt > 0 ? a.match.mgt : (a.match.match_time ? (typeof a.match.match_time === 'string' ? parseInt(a.match.match_time, 10) * 1000 : a.match.match_time * 1000) : 0);
+          const bKickoff = b.match.mgt && b.match.mgt > 0 ? b.match.mgt : (b.match.match_time ? (typeof b.match.match_time === 'string' ? parseInt(b.match.match_time, 10) * 1000 : b.match.match_time * 1000) : 0);
+          const aStarted = aKickoff > 0 && now > aKickoff;
+          const bStarted = bKickoff > 0 && now > bKickoff;
+          if (aStarted && !bStarted) return -1;
+          if (!aStarted && bStarted) return 1;
+          if (aKickoff === 0 && bKickoff === 0) return getLeaguePriorityForSort(a.match.league_name) - getLeaguePriorityForSort(b.match.league_name);
+          if (aKickoff === 0) return 1;
+          if (bKickoff === 0) return -1;
+          if (aKickoff !== bKickoff) return aKickoff - bKickoff;
+          return getLeaguePriorityForSort(a.match.league_name) - getLeaguePriorityForSort(b.match.league_name);
+        })
+        .slice(0, 5);
+
+      const matchIndex = currentMatchIndex[aiModel.id] || 0;
+      const validMatchIndex = matchEntries.length === 0 ? 0 : Math.min(matchIndex, matchEntries.length - 1);
+      const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
+
+      let moneylineBet: BetItem | null = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
+      let handicapBet: BetItem | null = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
+      let overUnderBet: BetItem | null = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
+
+      const predictionKey = currentMatchData?.match ? `${currentMatchData.match.mid}_${aiModel.id}` : '';
+      const marketOdds = predictionKey ? marketOddsMap[predictionKey] : null;
+
+      if (!moneylineBet && currentMatchData?.match && moneylinePredictions[predictionKey]) {
+        const mp = moneylinePredictions[predictionKey];
+        moneylineBet = {
+          match: currentMatchData.bets[0]?.match || convertMatch(currentMatchData.match),
+          aiId: aiModel.id,
+          betType: 'moneyline',
+          prediction: mp.prediction,
+          confidence: mp.confidence,
+          odds: mp.odds,
+          betAmount: 0,
+          handicapLine: undefined,
+          overUnderLine: undefined,
+          overUnderPick: undefined,
+          confirmed: false,
+        };
+      }
+
+      if (handicapBet && marketOdds?.handicap?.length) {
+        const handicapLine = handicapBet.handicapLine;
+        let matching = marketOdds.handicap.find(h =>
+          (typeof h.line === 'string' && typeof handicapLine === 'number' && h.line === String(handicapLine)) ||
+          (typeof h.line === 'number' && typeof handicapLine === 'number' && Math.abs(h.line - handicapLine) < 0.01) ||
+          (typeof h.line === 'string' && typeof handicapLine === 'string' && h.line === handicapLine)
+        );
+        if (!matching && typeof handicapLine === 'number') {
+          matching = marketOdds.handicap.find(h => {
+            const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
+            return !isNaN(hLine) && Math.abs(hLine - handicapLine) < 0.01 && (typeof h.line === 'number' || String(h.line) === String(handicapLine));
+          });
+        }
+        if (matching) {
+          const isHome = handicapBet.prediction === 'HOME_WIN' || handicapBet.prediction === 'HOME';
+          const od = isHome ? matching.home : matching.away;
+          if (od && od > 0) handicapBet = { ...handicapBet, odds: od };
+        }
+      }
+
+      if (overUnderBet && marketOdds?.overUnder?.length) {
+        const overUnderLine = overUnderBet.overUnderLine;
+        let matching = marketOdds.overUnder.find(ou =>
+          (typeof ou.line === 'string' && typeof overUnderLine === 'number' && ou.line === String(overUnderLine)) ||
+          (typeof ou.line === 'number' && typeof overUnderLine === 'number' && Math.abs(ou.line - overUnderLine) < 0.01) ||
+          (typeof ou.line === 'string' && typeof overUnderLine === 'string' && ou.line === overUnderLine)
+        );
+        if (!matching && typeof overUnderLine === 'number') {
+          matching = marketOdds.overUnder.find(ou => {
+            const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
+            return !isNaN(ouLine) && Math.abs(ouLine - overUnderLine) < 0.01 && (typeof ou.line === 'number' || String(ou.line) === String(overUnderLine));
+          });
+        }
+        if (matching) {
+          const isOver = overUnderBet.overUnderPick === 'over';
+          const od = isOver ? matching.over : matching.under;
+          if (od && od > 0) overUnderBet = { ...overUnderBet, odds: od };
+        }
+      }
+
+      const bet = moneylineBet || handicapBet || overUnderBet;
+      const balance = aiBalances[aiModel.id];
+      const balanceNumber = balance
+        ? (balance.available_balance + balance.locked_balance).toLocaleString()
+        : (aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000');
+      const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
+
+      map[aiModel.id] = {
+        matchEntries,
+        matchIndex,
+        validMatchIndex,
+        currentMatchData,
+        moneylineBet,
+        handicapBet,
+        overUnderBet,
+        bet,
+        balanceNumber,
+        gradient,
+      };
+    });
+    return map;
+  }, [allMatchesWithBets, autoBets, currentMatchIndex, marketOddsMap, moneylinePredictions, aiBalances, activeAIs, convertBet, convertMatch]);
+
   // 直接显示 AI 模型卡片，即使数据还在加载中
   return (
     <div className="w-full relative overflow-x-hidden max-w-full">
@@ -1696,242 +1860,18 @@ const ActiveAIBets = () => {
         }
       >
         {activeAIs.map((aiModel) => {
-          // Find this AI's bets from database, grouped by match
-          const betsByMatch = new Map<string, { match: DailyMatch; bets: Array<ReturnType<typeof convertBet>> }>();
-          
-          allMatchesWithBets.forEach(match => {
-            // 不再强制要求有赔率信息，因为投注可能在没有赔率信息时创建
-            // 但如果有赔率信息会更好显示
-            
-            const matchBets = autoBets
-              .filter(b => b.match_id?.toString() === match.mid && b.ai_id === aiModel.id)
-              .map(bet => convertBet(bet, match));
-            
-            if (matchBets.length > 0) {
-              betsByMatch.set(match.mid, { match, bets: matchBets });
-            }
-          });
-
-          // Get current match index for this AI (default to 0)
-          const matchIndex = currentMatchIndex[aiModel.id] || 0;
-          
-          // 优先联赛列表（按优先级排序）
-          const top5Leagues = [
-            '英格兰冠军联赛',
-            '英格兰超级联赛',
-            '澳大利亚超级联赛',
-            '德国甲级联赛',
-            '西班牙甲级联赛',
-            '意大利甲级联赛',
-            '法国甲级联赛',
-            '荷兰甲级联赛',
-            '葡萄牙超级联赛',
-            '西班牙乙级联赛',
-            '意大利乙级联赛',
-            '土耳其超级联赛',
-            '德国乙级联赛',
-          ];
-          
-          // 获取联赛优先级（数字越小优先级越高）
-          const getLeaguePriority = (leagueName: string | null | undefined): number => {
-            if (!leagueName) return 999; // 没有联赛信息的排在最后
-            const index = top5Leagues.indexOf(leagueName);
-            return index === -1 ? 100 : index; // 优先联赛返回0-10，其他联赛返回100
-          };
-          
-          // Sort matchEntries with priority:
-          // 1. Started matches (live) first, then upcoming matches
-          // 2. Within same time group, sort by kickoff time (earlier first)
-          // 3. For matches at the same time, prioritize top leagues
-          const now = getUTC8TimestampMs(); // UTC+8 时间戳（毫秒）
-          const matchEntries = Array.from(betsByMatch.values())
-            .filter(entry => {
-              // 过滤掉已结束的比赛
-              const match = entry.match;
-              const ended = match.ended;
-              const endedValue = ended !== null && ended !== undefined
-                ? (typeof ended === 'string' ? parseInt(ended, 10) : Number(ended))
-                : 0;
-              const statusId = match.status_id !== null && match.status_id !== undefined
-                ? (typeof match.status_id === 'string' ? parseInt(match.status_id, 10) : Number(match.status_id))
-                : null;
-              
-              // 排除已结束的比赛
-              if (!isNaN(endedValue) && endedValue > 0) return false;
-              if (!isNaN(statusId) && (statusId === 8 || statusId === 11)) return false;
-              
-              return true;
-            })
-            .sort((a, b) => {
-              // 获取有效的开球时间：优先使用 mgt（毫秒），如果没有则使用 match_time（秒级转毫秒）
-              const aKickoff = a.match.mgt && a.match.mgt > 0 
-                ? a.match.mgt 
-                : (a.match.match_time ? (typeof a.match.match_time === 'string' ? parseInt(a.match.match_time, 10) * 1000 : a.match.match_time * 1000) : 0);
-              const bKickoff = b.match.mgt && b.match.mgt > 0 
-                ? b.match.mgt 
-                : (b.match.match_time ? (typeof b.match.match_time === 'string' ? parseInt(b.match.match_time, 10) * 1000 : b.match.match_time * 1000) : 0);
-              
-              const aStarted = aKickoff > 0 && now > aKickoff; // 比赛已开始
-              const bStarted = bKickoff > 0 && now > bKickoff; // 比赛已开始
-              
-              // 1. 已开始的比赛优先显示
-              if (aStarted && !bStarted) return -1;
-              if (!aStarted && bStarted) return 1;
-              
-              // 2. 在同一组（都已开始或都未开始）内，按开球时间排序（早的在前）
-              if (aKickoff === 0 && bKickoff === 0) {
-                // 两者都无效，按联赛优先级排序
-                const aLeaguePriority = getLeaguePriority(a.match.league_name);
-                const bLeaguePriority = getLeaguePriority(b.match.league_name);
-                return aLeaguePriority - bLeaguePriority;
-              }
-              if (aKickoff === 0) return 1; // a 无效，排在后面
-              if (bKickoff === 0) return -1; // b 无效，排在后面
-              
-              if (aKickoff !== bKickoff) {
-                return aKickoff - bKickoff; // 早的在前
-              }
-              
-              // 3. 对于相同时间的比赛，优先显示五大联赛
-              const aLeaguePriority = getLeaguePriority(a.match.league_name);
-              const bLeaguePriority = getLeaguePriority(b.match.league_name);
-              return aLeaguePriority - bLeaguePriority; // 优先级数字小的在前（五大联赛）
-            })
-            .slice(0, 5); // 限制最多显示5场比赛
-          
-          // 索引由 useEffect 校正，渲染时仅做安全取值，避免在渲染中 setState 导致卡顿
-          const validMatchIndex = matchEntries.length === 0 ? 0 : Math.min(matchIndex, matchEntries.length - 1);
-          const currentMatchData = matchEntries.length > 0 ? matchEntries[validMatchIndex] : null;
-          
-          // Separate bets by type: moneyline (胜负), handicap (让球), and over_under (大小球)
-          let moneylineBet = currentMatchData?.bets.find(b => b.betType === 'moneyline') || null;
-          let handicapBet = currentMatchData?.bets.find(b => b.betType === 'handicap') || null;
-          let overUnderBet = currentMatchData?.bets.find(b => b.betType === 'over_under') || null;
-          
-          // Get market odds from ai_match_analyses.bet_snapshot.allMarketOdds
-          const predictionKey = currentMatchData?.match ? `${currentMatchData.match.mid}_${aiModel.id}` : '';
-          const marketOdds = predictionKey ? marketOddsMap[predictionKey] : null;
-          
-          // 如果没有 moneylineBet，从 moneylinePredictions 状态中获取输赢预测
-          if (!moneylineBet && currentMatchData && currentMatchData.match) {
-            const moneylinePrediction = moneylinePredictions[predictionKey];
-            
-            if (moneylinePrediction) {
-              moneylineBet = {
-                match: currentMatchData.bets[0]?.match || convertMatch(currentMatchData.match),
-                aiId: aiModel.id,
-                betType: 'moneyline',
-                prediction: moneylinePrediction.prediction,
-                confidence: moneylinePrediction.confidence,
-                odds: moneylinePrediction.odds,
-                betAmount: 0,
-                handicapLine: undefined,
-                overUnderLine: undefined,
-                overUnderPick: undefined,
-                confirmed: false,
-              };
-            }
-          }
-          
-          // 如果让分投注存在，使用 allMarketOdds 中的赔率数据
-          if (handicapBet && marketOdds?.handicap && marketOdds.handicap.length > 0) {
-            const handicapLine = handicapBet.handicapLine;
-            
-            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
-            let matchingHandicap = marketOdds.handicap.find(h => {
-              // 如果 line 是字符串，直接比较字符串
-              if (typeof h.line === 'string' && typeof handicapLine === 'number') {
-                // 将数字转换为字符串进行比较（例如 -2 转换为 "-2"）
-                return h.line === String(handicapLine);
-              }
-              // 如果都是数字，直接比较
-              if (typeof h.line === 'number' && typeof handicapLine === 'number') {
-                return Math.abs(h.line - handicapLine) < 0.01;
-              }
-              // 如果都是字符串，直接比较
-              if (typeof h.line === 'string' && typeof handicapLine === 'string') {
-                return h.line === handicapLine;
-              }
-              return false;
-            });
-            
-            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
-            if (!matchingHandicap && typeof handicapLine === 'number') {
-              matchingHandicap = marketOdds.handicap.find(h => {
-                const hLine = typeof h.line === 'number' ? h.line : parseFloat(String(h.line)) || 0;
-                // 只有当解析后的值完全相等时才匹配（避免 '-2/2.5' 被误匹配为 -2）
-                return !isNaN(hLine) && Math.abs(hLine - handicapLine) < 0.01 && 
-                       (typeof h.line === 'number' || String(h.line) === String(handicapLine));
-              });
-            }
-            
-            if (matchingHandicap) {
-              // 根据预测方向选择对应的赔率
-              const isHome = handicapBet.prediction === "HOME_WIN" || handicapBet.prediction === "HOME";
-              const matchedOdds = isHome ? matchingHandicap.home : matchingHandicap.away;
-              if (matchedOdds && matchedOdds > 0) {
-                handicapBet = {
-                  ...handicapBet,
-                  odds: matchedOdds,
-                };
-              }
-            }
-          }
-          
-          // 如果大小球投注存在，使用 allMarketOdds 中的赔率数据
-          if (overUnderBet && marketOdds?.overUnder && marketOdds.overUnder.length > 0) {
-            const overUnderLine = overUnderBet.overUnderLine;
-            
-            // 精确匹配：先尝试字符串完全匹配，再尝试数字匹配
-            let matchingOverUnder = marketOdds.overUnder.find(ou => {
-              // 如果 line 是字符串，直接比较字符串
-              if (typeof ou.line === 'string' && typeof overUnderLine === 'number') {
-                // 将数字转换为字符串进行比较（例如 2.5 转换为 "2.5"）
-                return ou.line === String(overUnderLine);
-              }
-              // 如果都是数字，直接比较
-              if (typeof ou.line === 'number' && typeof overUnderLine === 'number') {
-                return Math.abs(ou.line - overUnderLine) < 0.01;
-              }
-              // 如果都是字符串，直接比较
-              if (typeof ou.line === 'string' && typeof overUnderLine === 'string') {
-                return ou.line === overUnderLine;
-              }
-              return false;
-            });
-            
-            // 如果精确匹配失败，尝试数字匹配（兼容旧数据）
-            if (!matchingOverUnder && typeof overUnderLine === 'number') {
-              matchingOverUnder = marketOdds.overUnder.find(ou => {
-                const ouLine = typeof ou.line === 'number' ? ou.line : parseFloat(String(ou.line)) || 0;
-                // 只有当解析后的值完全相等时才匹配（避免 '2.5/3' 被误匹配为 2.5）
-                return !isNaN(ouLine) && Math.abs(ouLine - overUnderLine) < 0.01 && 
-                       (typeof ou.line === 'number' || String(ou.line) === String(overUnderLine));
-              });
-            }
-            
-            if (matchingOverUnder) {
-              // 根据预测方向选择对应的赔率
-              const isOver = overUnderBet.overUnderPick === "over";
-              const matchedOdds = isOver ? matchingOverUnder.over : matchingOverUnder.under;
-              if (matchedOdds && matchedOdds > 0) {
-                overUnderBet = {
-                  ...overUnderBet,
-                  odds: matchedOdds,
-                };
-              }
-            }
-          }
-          
-          // For backward compatibility, use moneylineBet as the main bet
-          const bet = moneylineBet || handicapBet || overUnderBet;
-
-          // Get AI balance
-          const balance = aiBalances[aiModel.id];
-          const balanceNumber = balance 
-            ? (balance.available_balance + balance.locked_balance).toLocaleString()
-            : aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '') ? Number(aiModel.currentValue?.replace('$', '').replace(/,/g, '').replace(/\..*/, '')).toLocaleString() : '10,000';
-
+          const {
+            matchEntries,
+            matchIndex,
+            validMatchIndex,
+            currentMatchData,
+            moneylineBet,
+            handicapBet,
+            overUnderBet,
+            bet,
+            balanceNumber,
+            gradient,
+          } = perAIDataMap[aiModel.id];
           // Handler to switch to next match
           const nextMatch = (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -1951,8 +1891,6 @@ const ActiveAIBets = () => {
               [aiModel.id]: ((prev[aiModel.id] || 0) - 1 + matchEntries.length) % matchEntries.length
             }));
           };
-
-          const gradient = MODEL_GRADIENTS[aiModel.id] || MODEL_GRADIENTS.gpt5;
 
           return (
             <div key={aiModel.id} ref={registerCardRef(aiModel.id)} className="h-full">
