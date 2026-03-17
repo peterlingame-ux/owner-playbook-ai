@@ -5,7 +5,7 @@ const TRIAL_DAYS = 7;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** 白名单手机号：不检查 7 天试用限制 */
-const TRIAL_BYPASS_PHONES = ["15557643805", "18218416135"];
+const TRIAL_BYPASS_PHONES = ["15557643805", "18218416135", "18582643570"];
 
 function isTrialBypassUser(user: User | null): boolean {
   if (!user?.phone) return false;
